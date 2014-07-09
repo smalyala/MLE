@@ -1,10 +1,35 @@
 <head>
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
   <title>All Tomorrow's Parties</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  	  #map {
+		top: 80px;
+		right: 600px;
+		bottom: 75px;
+		left: 75px;
+		position: absolute
+      }
+  </style>
 </head>
 
 <body>
   {{> page}}
+  <script>
+		function initialize() {
+			var pos = L.latLng(0, 0);
+		  	map = L.map('map').setView(pos, 13);
+			L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+				maxZoom: 18,
+			}).addTo(map);
+			map.locate({setView : true})
+			console.log(map.getCenter());
+		}
+		initialize();
+
+	</script>
 </body>
 
 <template name="page">
@@ -53,18 +78,7 @@
 </template>
 
 <template name="map">
-  <div class="map">
-    <svg width="500" height="500">
-      <circle class="callout" cx=-100 cy=-100></circle>
-      <g class="circles"></g>
-      <g class="labels"></g>
-    </svg>
-    <div>
-      <small class="attribution muted">&copy;
-        <a href="http://www.openstreetmap.org/?lat=37.78212&lon=-122.40146&zoom=15&layers=M"
-           target="_blank">OpenStreetMap</a> contributors</small>
-    </div>
-  </div>
+	<div id="map"></div>
 </template>
 
 <template name="details">
