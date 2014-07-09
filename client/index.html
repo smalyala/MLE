@@ -1,7 +1,7 @@
 <head>
   <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
   <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-  <title>All Tomorrow's Parties</title>
+  <title>Eventifi</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
   	  #map {
@@ -55,7 +55,7 @@
       <div class="span10">
         <div class="header row">
           <div class="span5">
-            <h3 style="margin-bottom: 0px">All Tomorrow's Parties</h3>
+            <h3 style="margin-bottom: 0px">Temp</h3>
           </div>
           <div class="span5">
             <div style="float: right">
@@ -85,7 +85,9 @@
 </template>
 
 <template name="map">
-	<div id="map"></div>
+	<svg width="500" height="500">
+		<div id="map"></div>
+	</svg>
 </template>
 
 <template name="details">
