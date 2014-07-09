@@ -17,15 +17,22 @@
 <body>
   {{> page}}
   <script>
-		function initialize() {
+  		function initialize() {
 			var pos = L.latLng(0, 0);
-		  	map = L.map('map').setView(pos, 13);
+		  	map = L.map('map', {
+				center: pos, 
+				zoom: 13,
+				doubleClickZoom: false
+			});
 			L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
 				maxZoom: 18,
+				doubleClickZoom: false
 			}).addTo(map);
 			map.locate({setView : true})
-			console.log(map.getCenter());
+			map.on('dblclick', function putMarker(e) {
+				var marker = L.marker(e.latlng).addTo(map);
+			});
 		}
 		initialize();
 
