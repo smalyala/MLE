@@ -125,20 +125,6 @@ Template.map.events({
   }
 });
 
-Template.map.rendered = function () {
-  var self = this;
-  self.node = self.find("svg");
-
-  if (! self.handle) {
-    self.handle = Deps.autorun(function () {
-      var selected = Session.get('selected');
-      var selectedParty = selected && Parties.findOne(selected);
-      var radius = function (party) {
-        return 10 + Math.sqrt(attending(party)) * 10;
-      };
-    });
-  }
-};
 
 Template.map.destroyed = function () {
   this.handle && this.handle.stop();
