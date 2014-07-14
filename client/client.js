@@ -102,15 +102,13 @@ Template.attendance.canInvite = function () {
   return ! this.public && this.owner === Meteor.userId();
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// Map display
 
 // Use jquery to get the position clicked relative to the map element.
 var coordsRelativeToElement = function (element, event) {
   var offset = $(element).offset();
-  var x = event.pageX - offset.left;
-  var y = event.pageY - offset.top;
-  return { x: x, y: y };
+  var lat = event.pageX - offset.left;
+  var lng = event.pageY - offset.top;
+  return { lat: lat, lng: lng };
 };
 
 Template.map.events({
@@ -121,7 +119,7 @@ Template.map.events({
     if (! Meteor.userId()) // must be logged in to create events
       return;
     var coords = coordsRelativeToElement(event.currentTarget, event);
-    openCreateDialog(coords.x / 500, coords.y / 500);
+    openCreateDialog(coords.lat / 500, coords.lng / 500);
   }
 });
 
@@ -133,8 +131,8 @@ Template.map.destroyed = function () {
 ///////////////////////////////////////////////////////////////////////////////
 // Create Party dialog
 
-var openCreateDialog = function (x, y) {
-  Session.set("createCoords", {x: x, y: y});
+var openCreateDialog = function (lat, lng) {
+  Session.set("createCoords", {lat: lat, lng: lng});
   Session.set("createError", null);
   Session.set("showCreateDialog", true);
 };
@@ -154,8 +152,8 @@ Template.createDialog.events({
       var id = createParty({
         title: title,
         description: description,
-        x: coords.x,
-        y: coords.y,
+        lat: coords.lat,
+        lng: coords.lng,
         public: public
       });
 
