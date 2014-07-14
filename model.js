@@ -7,7 +7,7 @@
 /*
   Each party is represented by a document in the Parties collection:
     owner: user id
-    lat, lng: Number (screen coordinates in the interval [0, 1])
+    x, y: Number (screen coordinates in the interval [0, 1])
     title, description: String
     public: Boolean
     invited: Array of user id's that are invited (only if !public)
@@ -23,7 +23,7 @@ Parties.allow({
     if (userId !== party.owner)
       return false; // not the owner
 
-    var allowed = ["title", "description", "lat", "lng"];
+    var allowed = ["title", "description", "x", "y"];
     if (_.difference(fields, allowed).length)
       return false; // tried to write to forbidden field
 
@@ -42,14 +42,14 @@ attending = function (party) {
   return (_.groupBy(party.rsvps, 'rsvp').yes || []).length;
 };
 
-var NonEmptyString = Match.Where(function (lat) {
-  check(lat, String);
-  return lat.length !== 0;
+var NonEmptyString = Match.Where(function (x) {
+  check(x, String);
+  return x.length !== 0;
 });
 
-var Coordinate = Match.Where(function (lat) {
-  check(lat, Number);
-  return lat >= 0 && lat <= 1;
+var Coordinate = Match.Where(function (x) {
+  check(x, Number);
+  return x >= 0 && x <= 1;
 });
 
 createParty = function (options) {
@@ -59,13 +59,13 @@ createParty = function (options) {
 };
 
 Meteor.methods({
-  // options should include: title, description, lat, lng, public
+  // options should include: title, description, x, y, public
   createParty: function (options) {
     check(options, {
       title: NonEmptyString,
       description: NonEmptyString,
-      lat: Coordinate,
-      lng: Coordinate,
+      x: Coordinate,
+      y: Coordinate,
       public: Match.Optional(Boolean),
       _id: Match.Optional(NonEmptyString)
     });
@@ -81,8 +81,8 @@ Meteor.methods({
     Parties.insert({
       _id: id,
       owner: this.userId,
-      lat: options.lat,
-      lng: options.lng,
+      x: options.x,
+      y: options.y,
       title: options.title,
       description: options.description,
       public: !! options.public,

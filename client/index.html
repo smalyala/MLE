@@ -30,12 +30,14 @@
 				doubleClickZoom: false
 			}).addTo(map);
 			map.locate({setView : true})
-			map.on('dblclick', function putMarker(e) {
+			/*map.on('dblclick', function putMarker(e) {
 				var marker = L.marker(e.latlng).addTo(map);
-			});
+				console.log(e.latlng.lat + "	" + e.latlng.lng);
+			});*/
 		}
 		initialize();
-
+		nice();
+		
 	</script>
 </body>
 

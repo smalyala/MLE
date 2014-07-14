@@ -111,15 +111,19 @@ var coordsRelativeToElement = function (element, event) {
   return { lat: lat, lng: lng };
 };
 
+var nice = function() {
+	console.log("test");
+};
+
 Template.map.events({
   'mousedown circle, mousedown text': function (event, template) {
     Session.set("selected", event.currentTarget.id);
   },
   'dblclick .map': function (event, template) {
+  	console.log("here"); 
     if (! Meteor.userId()) // must be logged in to create events
       return;
-    var coords = coordsRelativeToElement(event.currentTarget, event);
-    openCreateDialog(coords.lat / 500, coords.lng / 500);
+    openCreateDialog(event.latlng.lat, event.latlng.lng);
   }
 });
 
