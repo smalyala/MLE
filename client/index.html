@@ -184,10 +184,12 @@
 			  Session.set("createError",
 						  "It needs a title and a description, or why bother?");
 			}
+			Session.set("putMarker", true);
 		  },
 
 		  'click .cancel': function () {
 			Session.set("showCreateDialog", false);
+			Session.set("putMarker", false);
 		  }
 		});
 
@@ -247,13 +249,14 @@
 				doubleClickZoom: false
 			}).addTo(map);
 			map.locate({setView : true})
-			map.on('dblclick', function putMarker(e) {
-				console.log("here"); 
+			map.on('dblclick', function place(e) {
 				if (! Meteor.userId()) // must be logged in to create events
-				return;
-				var put = openCreateDialog(e.latlng.lat, e.latlng.lng);
-				var marker = L.marker(e.latlng).addTo(map);
-				console.log(e.latlng.lat + "	" + e.latlng.lng);
+					return;
+				openCreateDialog(e.latlng.lat, e.latlng.lng);
+				if (Session.get("putMarker")) {
+					var marker = L.marker(e.latlng).addTo(map);
+					console.log(e.latlng.lat + "	" + e.latlng.lng);
+				};
 			});
 		}
 		initialize();
