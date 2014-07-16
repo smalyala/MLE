@@ -185,11 +185,13 @@
 						  "It needs a title and a description, or why bother?");
 			}
 			Session.set("putMarker", true);
+			console.log("2");
 		  },
 
 		  'click .cancel': function () {
 			Session.set("showCreateDialog", false);
 			Session.set("putMarker", false);
+			console.log("2");
 		  }
 		});
 
@@ -252,16 +254,17 @@
 			map.on('dblclick', function place(e) {
 				if (! Meteor.userId()) // must be logged in to create events
 					return;
+				console.log("1");
 				openCreateDialog(e.latlng.lat, e.latlng.lng);
+				console.log("3");
 				if (Session.get("putMarker")) {
 					var marker = L.marker(e.latlng).addTo(map);
-					console.log(e.latlng.lat + "	" + e.latlng.lng);
+					Session.set("putMarker", false);
 				};
+				console.log("4");
 			});
 		}
-		initialize();
-		nice();
-		
+		initialize();		
 	</script>
 </body>
 
