@@ -47,11 +47,6 @@ var NonEmptyString = Match.Where(function (lat) {
   return lat.length !== 0;
 });
 
-var Coordinate = Match.Where(function (lat) {
-  check(lat, Number);
-  return lat >= 0 && lat <= 1;
-});
-
 createParty = function (options) {
   var id = Random.id();
   Meteor.call('createParty', _.extend({ _id: id }, options));
@@ -64,8 +59,8 @@ Meteor.methods({
     check(options, {
       title: NonEmptyString,
       description: NonEmptyString,
-      lat: Coordinate,
-      lng: Coordinate,
+      lat: Number,
+      lng: Number,
       public: Match.Optional(Boolean),
       _id: Match.Optional(NonEmptyString)
     });
