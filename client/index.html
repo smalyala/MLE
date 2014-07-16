@@ -13,19 +13,19 @@
       }
   </style>
   <script>
-		// All Tomorrow's Parties -- client
+		// All Tomorrow's Events -- client
 
 		Meteor.subscribe("directory");
-		Meteor.subscribe("parties");
+		Meteor.subscribe("events");
 
-		// If no party selected, or if the selected party was deleted, select one.
+		// If no event selected, or if the selected event was deleted, select one.
 		Meteor.startup(function () {
 		  Deps.autorun(function () {
 			var selected = Session.get("selected");
-			if (! selected || ! Parties.findOne(selected)) {
-			  var party = Parties.findOne();
-			  if (party)
-				Session.set("selected", party._id);
+			if (! selected || ! Events.findOne(selected)) {
+			  var event = Events.findOne();
+			  if (event)
+				Session.set("selected", event._id);
 			  else
 				Session.set("selected", null);
 			}
@@ -35,12 +35,12 @@
 		///////////////////////////////////////////////////////////////////////////////
 		// Party details sidebar
 
-		Template.details.party = function () {
-		  return Parties.findOne(Session.get("selected"));
+		Template.details.event = function () {
+		  return Events.findOne(Session.get("selected"));
 		};
 
 		Template.details.anyParties = function () {
-		  return Parties.find().count() > 0;
+		  return Events.find().count() > 0;
 		};
 
 		Template.details.creatorName = function () {
@@ -80,7 +80,7 @@
 			return false;
 		  },
 		  'click .remove': function () {
-			Parties.remove(this._id);
+			Events.remove(this._id);
 			return false;
 		  }
 		});
@@ -94,10 +94,10 @@
 		};
 
 		Template.attendance.outstandingInvitations = function () {
-		  var party = Parties.findOne(this._id);
+		  var event = Events.findOne(this._id);
 		  return Meteor.users.find({$and: [
-			{_id: {$in: party.invited}}, // they're invited
-			{_id: {$nin: _.pluck(party.rsvps, 'user')}} // but haven't RSVP'd
+			{_id: {$in: event.invited}}, // they're invited
+			{_id: {$nin: _.pluck(event.rsvps, 'user')}} // but haven't RSVP'd
 		  ]});
 		};
 
@@ -219,11 +219,11 @@
 		});
 
 		Template.inviteDialog.uninvited = function () {
-		  var party = Parties.findOne(Session.get("selected"));
-		  if (! party)
-			return []; // party hasn't loaded yet
-		  return Meteor.users.find({$nor: [{_id: {$in: party.invited}},
-										   {_id: party.owner}]});
+		  var event = Events.findOne(Session.get("selected"));
+		  if (! event)
+			return []; // event hasn't loaded yet
+		  return Meteor.users.find({$nor: [{_id: {$in: event.invited}},
+										   {_id: event.owner}]});
 		};
 
 		Template.inviteDialog.displayName = function () {
@@ -295,7 +295,7 @@
             {{> map}}
             {{#if currentUser}}
             <div class="pagination-centered">
-              <em><small>Double click the map to post a party!</small></em>
+              <em><small>Double click the map to post a event!</small></em>
             </div>
             {{/if}}
           </div>
@@ -316,8 +316,8 @@
 
 <template name="details">
   <div class="details">
-    {{#if party}}
-      {{#with party}}
+    {{#if event}}
+      {{#with event}}
         <h1>{{title}}</h1>
 
         <div class="description">{{description}}</div>
@@ -333,14 +333,14 @@
             <input type="button" value="No"
                    class="btn btn-small rsvp_no {{maybeChosen "no"}}">
           {{else}}
-            <i>Sign in to RSVP for this party.</i>
+            <i>Sign in to RSVP for this event.</i>
           {{/if}}
           <p><small>Posted by {{creatorName}}</small></p>
         </div>
 
         {{#if canRemove}}
           <div class="alert alert-info"><small>
-              You posted this party and nobody is signed up to go, so if
+              You posted this event and nobody is signed up to go, so if
               you like, you could
               <b><a href="#" class="remove">delete this listing</a></b>.
           </small></div>
@@ -349,9 +349,9 @@
     {{else}}
       <h1 class="muted pagination-centered">
         {{#if anyParties}}
-          Click a party to select it
+          Click a event to select it
         {{else}}
-          Sign in and double click the map to post a party
+          Sign in and double click the map to post a event
         {{/if}}
       </h1>
     {{/if}}
@@ -409,7 +409,7 @@
   <div class="modal">
     <div class="modal-header">
       <button type="button" class="close cancel">&times;</button>
-      <h3>Add party</h3>
+      <h3>Add event</h3>
     </div>
 
     <div class="modal-body">
@@ -425,13 +425,13 @@
 
       <label class="checkbox">
         <input type="checkbox" class="private">
-        Private party &mdash; invitees only
+        Private event &mdash; invitees only
       </label>
     </div>
 
     <div class="modal-footer">
       <a href="#" class="btn cancel">Cancel</a>
-      <a href="#" class="btn btn-primary save">Add party</a>
+      <a href="#" class="btn btn-primary save">Add event</a>
     </div>
   </div>
 </template>

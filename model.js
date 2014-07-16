@@ -1,11 +1,11 @@
-// All Tomorrow's Parties -- data model
+// All Tomorrow's Events -- data model
 // Loaded on both the client and the server
 
 ///////////////////////////////////////////////////////////////////////////////
-// Parties
+// Events
 
 /*
-  Each party is represented by a document in the Parties collection:
+  Each event is represented by a document in the Events collection:
     owner: user id
     lat, lng: Number (screen coordinates in the interval [0, 1])
     title, description: String
@@ -13,14 +13,14 @@
     invited: Array of user id's that are invited (only if !public)
     rsvps: Array of objects like {user: userId, rsvp: "yes"} (or "no"/"maybe")
 */
-Parties = new Meteor.Collection("parties");
+Events = new Meteor.Collection("events");
 
-Parties.allow({
-  insert: function (userId, party) {
+Events.allow({
+  insert: function (userId, event) {
     return false; // no cowboy inserts -- use createParty method
   },
-  update: function (userId, party, fields, modifier) {
-    if (userId !== party.owner)
+  update: function (userId, event, fields, modifier) {
+    if (userId !== event.owner)
       return false; // not the owner
 
     var allowed = ["title", "description", "lat", "lng"];
@@ -32,14 +32,14 @@ Parties.allow({
     // future Meteor will have a schema system to makes that easier.
     return true;
   },
-  remove: function (userId, party) {
-    // You can only remove parties that you created and nobody is going to.
-    return party.owner === userId && attending(party) === 0;
+  remove: function (userId, event) {
+    // You can only remove events that you created and nobody is going to.
+    return event.owner === userId && attending(event) === 0;
   }
 });
 
-attending = function (party) {
-  return (_.groupBy(party.rsvps, 'rsvp').yes || []).length;
+attending = function (event) {
+  return (_.groupBy(event.rsvps, 'rsvp').yes || []).length;
 };
 
 var NonEmptyString = Match.Where(function (lat) {
@@ -73,7 +73,7 @@ Meteor.methods({
       throw new Meteor.Error(403, "You must be logged in");
 
     var id = options._id || Random.id();
-    Parties.insert({
+    Events.insert({
       _id: id,
       owner: this.userId,
       lat: options.lat,
@@ -90,14 +90,14 @@ Meteor.methods({
   invite: function (partyId, userId) {
     check(partyId, String);
     check(userId, String);
-    var party = Parties.findOne(partyId);
-    if (! party || party.owner !== this.userId)
-      throw new Meteor.Error(404, "No such party");
-    if (party.public)
+    var event = Events.findOne(partyId);
+    if (! event || event.owner !== this.userId)
+      throw new Meteor.Error(404, "No such event");
+    if (event.public)
       throw new Meteor.Error(400,
-                             "That party is public. No need to invite people.");
-    if (userId !== party.owner && ! _.contains(party.invited, userId)) {
-      Parties.update(partyId, { $addToSet: { invited: userId } });
+                             "That event is public. No need to invite people.");
+    if (userId !== event.owner && ! _.contains(event.invited, userId)) {
+      Events.update(partyId, { $addToSet: { invited: userId } });
 
       var from = contactEmail(Meteor.users.findOne(this.userId));
       var to = contactEmail(Meteor.users.findOne(userId));
@@ -108,9 +108,9 @@ Meteor.methods({
           from: "noreply@example.com",
           to: to,
           replyTo: from || undefined,
-          subject: "PARTY: " + party.title,
+          subject: "PARTY: " + event.title,
           text:
-"Hey, I just invited you to '" + party.title + "' on All Tomorrow's Parties." +
+"Hey, I just invited you to '" + event.title + "' on All Tomorrow's Events." +
 "\n\nCome check it out: " + Meteor.absoluteUrl() + "\n"
         });
       }
@@ -124,21 +124,21 @@ Meteor.methods({
       throw new Meteor.Error(403, "You must be logged in to RSVP");
     if (! _.contains(['yes', 'no', 'maybe'], rsvp))
       throw new Meteor.Error(400, "Invalid RSVP");
-    var party = Parties.findOne(partyId);
-    if (! party)
-      throw new Meteor.Error(404, "No such party");
-    if (! party.public && party.owner !== this.userId &&
-        !_.contains(party.invited, this.userId))
+    var event = Events.findOne(partyId);
+    if (! event)
+      throw new Meteor.Error(404, "No such event");
+    if (! event.public && event.owner !== this.userId &&
+        !_.contains(event.invited, this.userId))
       // private, but let's not tell this to the user
-      throw new Meteor.Error(403, "No such party");
+      throw new Meteor.Error(403, "No such event");
 
-    var rsvpIndex = _.indexOf(_.pluck(party.rsvps, 'user'), this.userId);
+    var rsvpIndex = _.indexOf(_.pluck(event.rsvps, 'user'), this.userId);
     if (rsvpIndex !== -1) {
       // update existing rsvp entry
 
       if (Meteor.isServer) {
         // update the appropriate rsvp entry with $
-        Parties.update(
+        Events.update(
           {_id: partyId, "rsvps.user": this.userId},
           {$set: {"rsvps.$.rsvp": rsvp}});
       } else {
@@ -147,14 +147,14 @@ Meteor.methods({
         // safe on the client since there's only one thread.
         var modifier = {$set: {}};
         modifier.$set["rsvps." + rsvpIndex + ".rsvp"] = rsvp;
-        Parties.update(partyId, modifier);
+        Events.update(partyId, modifier);
       }
 
       // Possible improvement: send email to the other people that are
-      // coming to the party.
+      // coming to the event.
     } else {
       // add new rsvp entry
-      Parties.update(partyId,
+      Events.update(partyId,
                      {$push: {rsvps: {user: this.userId, rsvp: rsvp}}});
     }
   }
